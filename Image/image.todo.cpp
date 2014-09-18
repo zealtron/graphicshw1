@@ -206,58 +206,64 @@ int Image32::Blur3X3(Image32& outputImage) const
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
                 Pixel32& p = outputImage.pixel(x,y);
-                p.r *= 4/16;
+                /*p.r *= 4/16;
                 p.g *= 4/16;
-                p.b *= 4/16;
-                cout << p.r << " " << p.g << " " << p.b << " ";
+                p.b *= 4/16;*/
+                //cout << p.r << " " << p.g << " " << p.b << " ";
+                int r = p.r * 4/16;
+                int g = p.r * 4/16;
+                int b = p.r * 4/16;
                 if( x - 1 >= 0 && y - 1 >= 0) { //check upper left
                     Pixel32& pul = outputImage.pixel(x-1,y-1);
-                    pul.r *= 1/16;
-                    pul.g *= 1/16;
-                    pul.b *= 1/16;
+                    r += pul.r * 1/16;
+                    g += pul.g * 1/16;
+                    b += pul.b * 1/16;
                 }
                 if( x - 1 >= 0 && y + 1 < outputImage.height()) { //check lower left
                     Pixel32& pll = outputImage.pixel(x-1,y+1);
-                    pll.r *= 1/16;
-                    pll.g *= 1/16;
-                    pll.b *= 1/16;
+                    r += pll.r * 1/16;
+                    g += pll.g * 1/16;
+                    b += pll.b * 1/16;
                 }
                 if( x + 1 < outputImage.width() && y - 1 >= 0) { //check upper right
                     Pixel32& pur = outputImage.pixel(x+1,y-1);
-                    pur.r *= 1/16;
-                    pur.g *= 1/16;
-                    pur.b *= 1/16;
+                    r += pur.r * 1/16;
+                    g += pur.g * 1/16;
+                    b += pur.b * 1/16;
                 }
                 if( x + 1 < outputImage.width() && y + 1 < outputImage.height()) { //check lower right
                     Pixel32& plr = outputImage.pixel(x+1,y+1);
-                    plr.r *= 1/16;
-                    plr.g *= 1/16;
-                    plr.b *= 1/16;
+                    r += plr.r * 1/16;
+                    g += plr.g * 1/16;
+                    b += plr.b * 1/16;
                 }
                 if( x - 1 >= 0) { //check left
                     Pixel32& pl = outputImage.pixel(x-1,y);
-                    pl.r *= 2/16;
-                    pl.g *= 2/16;
-                    pl.b *= 2/16;
+                    r += pl.r * 2/16;
+                    g += pl.g * 2/16;
+                    b += pl.b * 2/16;
                 }
                 if( y - 1 >= 0) { //check up
                     Pixel32& pu = outputImage.pixel(x,y-1);
-                    pu.r *= 2/16;
-                    pu.g *= 2/16;
-                    pu.b *= 2/16;
+                    r *= pu.r * 2/16;
+                    g *= pu.g * 2/16;
+                    b *= pu.b * 2/16;
                 }
                 if( x + 1 < outputImage.width()) { //check right
                     Pixel32& pr = outputImage.pixel(x+1,y);
-                    pr.r *= 2/16;
-                    pr.g *= 2/16;
-                    pr.b *= 2/16;
+                    r += pr.r * 2/16;
+                    g += pr.g * 2/16;
+                    b += pr.b * 2/16;
                 }
                 if( y + 1 < outputImage.height()) { //check down
                     Pixel32& pd = outputImage.pixel(x,y+1);
-                    pd.r *= 2/16;
-                    pd.g *= 2/16;
-                    pd.b *= 2/16;
+                    r += pd.r * 2/16;
+                    g += pd.g * 2/16;
+                    b += pd.b * 2/16;
                 }
+                p.r = r;
+                p.g = g;
+                p.b = b;
             }   
         }
 	return 1;
