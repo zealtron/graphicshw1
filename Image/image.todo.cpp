@@ -213,7 +213,46 @@ int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
 
 int Image32::FloydSteinbergDither(const int& bits,Image32& outputImage) const
 {
-	return 0;
+        if(bits < 0) return 0;
+        Pixel32 fs[outputImage.width()][outputImage.height];
+        fs[0][0] = outputImage.pixel(0,0);
+        for(int x = 0; x < outputImage.width(); x++) {
+            for(int y = 0; y < outputImage.height(); y++) {
+                Pixel32 p = outputImage.pixel(x,y);
+                float r = floor(p.r*(pow(2,bits)/256))*(255/(pow(2,bits)-1));
+                float er = p.r - r;
+                float g = floor(p.g*(pow(2,bits)/256))*(255/(pow(2,bits)-1));
+                float eg = p.g - g;
+                float b = floor(p.b*(pow(2,bits)/256))*(255/(pow(2,bits)-1));
+                float eb = p.b - b;
+                if(y + 1 < outputImage.height()) { // checks right; alpha 7/16
+                    Pixel32 pr = outputImage.pixel(x,y+1);
+                    pr.r = (unsigned char)max(0,min(255,(int)(pr.r + ((7*er)/16))));
+                    pr.g = (unsigned char)max(0,min(255,(int)(pr.g + ((7*er)/16))));
+                    pr.b = (unsigned char)max(0,min(255,(int)(pr.b + ((7*er)/16))));
+                }
+                if(x + 1 < outputImage.width() && y - 1 >= 0) { // check lower left; beta 3/16
+                    Pixel32 pll = outputImage.pixel(x+1,y-1);
+                    pll.r = (unsigned char)max(0,min(255,(int)(pll.r + ((3*er)/16))));
+                    pll.g = (unsigned char)max(0,min(255,(int)(pll.g + ((3*er)/16))));
+                    pll.b = (unsigned char)max(0,min(255,(int)(pll.b + ((3*er)/16))));
+                }
+                if(x+1 < outputImage.width()) { //checks down; gamma 5/16
+                    Pixel32 pd = outputImage.pixel(x+1,y);
+                    pd.r = (unsigned char)max(0,min(255,(int)(pd.r + ((5*er)/16))));
+                    pd.g = (unsigned char)max(0,min(255,(int)(pd.g + ((5*er)/16))));
+                    pd.b = (unsigned char)max(0,min(255,(int)(pd.b + ((5*er)/16))));
+                }
+                if(x+1 < outputImage.width() && y+1 < outputImage.height()) { //checks lower right; delta 1/16
+                    Pixel32 plr = outputImage.pixel(x+1,y+1);
+                    plr.r = (unsigned char)max(0,min(255,(int)(plr.r + (er/16))));
+                    plr.g = (unsigned char)max(0,min(255,(int)(plr.g + (er/16))));
+                    plr.b = (unsigned char)max(0,min(255,(int)(plr.b + (er/16))));
+                }
+            }
+        }
+ 
+	return 1;
 }
 
 int Image32::Blur3X3(Image32& outputImage) const
