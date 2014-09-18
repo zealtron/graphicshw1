@@ -210,6 +210,7 @@ int Image32::FloydSteinbergDither(const int& bits,Image32& outputImage) const
 
 int Image32::Blur3X3(Image32& outputImage) const
 {
+        Pixel32 pblur[outputImage.width()][outputImage.height()];
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
                 Pixel32& p = outputImage.pixel(x,y);
@@ -280,16 +281,24 @@ int Image32::Blur3X3(Image32& outputImage) const
                 }
                 //cout << mask << " ";
                 float maskr = mask/16;
-                p.r = r/maskr;
-                p.g = g/maskr;
-                p.b = b/maskr;
+                pblur[x][y].r = r/maskr;
+                pblur[x][y].g = g/maskr;
+                pblur[x][y].b = b/maskr;
             }   
         }
+        for(int w = 0; w < outputImage.width(); w++) {
+            for(int h = 0; h < outputImage.height(); h++) {
+                Pixel32& pix = outputImage.pixel(w,h);
+                pix = pblur[w][h];
+            }
+        }
+        //outputImage = blur;
 	return 1;
 }
 
 int Image32::EdgeDetect3X3(Image32& outputImage) const
 {
+        Pixel32 edgy[outputImage.width()][outputImage.height()];
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
                 Pixel32& p = outputImage.pixel(x,y);
@@ -298,8 +307,8 @@ int Image32::EdgeDetect3X3(Image32& outputImage) const
                 p.b *= 4/16;*/
                 //cout << p.r << " " << p.g << " " << p.b << " ";
                 int r = p.r * 8;
-                int g = p.r * 8;
-                int b = p.r * 8;
+                int g = p.g * 8;
+                int b = p.b * 8;
                 if( x - 1 >= 0 && y - 1 >= 0) { //check upper left
                     Pixel32& pul = outputImage.pixel(x-1,y-1);
                     r += (pul.r * -1);
@@ -348,13 +357,18 @@ int Image32::EdgeDetect3X3(Image32& outputImage) const
                     g += (pd.g * -1);
                     b += (pd.b * -1);
                 }
-                cout << r << " " << g << " " << b << " ";
-                p.r = (unsigned char)max(0,min(255,r));
-                p.g = (unsigned char)max(0,min(255,g));
-                p.b = (unsigned char)max(0,min(255,b));
+                //cout << r << " " << g << " " << b << " ";
+                edgy[x][y].r = (unsigned char)max(0,min(255,r));
+                edgy[x][y].g = (unsigned char)max(0,min(255,g));
+                edgy[x][y].b = (unsigned char)max(0,min(255,b));
             }   
         }
-
+        for(int w = 0; w < outputImage.width(); w++) {
+            for(int h = 0; h < outputImage.height(); h++) {
+                Pixel32& pix = outputImage.pixel(w,h);
+                pix = edgy[w][h];
+            }
+        }
 	return 1;
 }
 int Image32::ScaleNearest(const float& scaleFactor,Image32& outputImage) const
