@@ -177,26 +177,30 @@ int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
                 Pixel32& p = outputImage.pixel(x,y);
                 int i = x%2;
                 int j = y%2;
-                float cr = (p.r/255)*(pow(2,bits)-1);
-                float cg = (p.g/255)*(pow(2,bits)-1);
-                float cb = (p.b/255)*(pow(2,bits)-1);
+                int r = p.r;
+                int g = p.g;
+                int b = p.b;
+                float cr = r*((pow(2,bits)-1)/255);
+                float cg = g*((pow(2,bits)-1)/255);
+                float cb = b*((pow(2,bits)-1)/255);
                 float er = cr - floor(cr);
+                //cout << cr << " " << cg << " " << cb << " ";
                 if(er > (d[i][j] / 5)) {
-                    p.r = ceil(cr*(255/pow(2,bits)-1));
+                    p.r = (unsigned char)max(0,min(255,(int)(ceil(cr*(255/pow(2,bits)-1)))));
                 } else {
-                    p.r = floor(cr*(255/pow(2,bits)-1));
+                    p.r = (unsigned char)max(0,min(255,(int)(floor(cr*(255/pow(2,bits)-1)))));
                 }
                 float eg = cg - floor(cg);
                 if(eg > (d[i][j] / 5)) {
-                    p.g = ceil(cg*(255/pow(2,bits)-1));
+                    p.g = (unsigned char)max(0,min(255,(int)(ceil(cg*(255/pow(2,bits)-1)))));
                 } else {
-                    p.g = floor(cg*(255/pow(2,bits)-1));
+                    p.g = (unsigned char)max(0,min(255,(int)(floor(cg*(255/pow(2,bits)-1)))));
                 }
-                float eb = cb - floor(eb);
+                float eb = cb - floor(cb);
                 if(eb > (d[i][j] / 5)) {
-                    p.b = ceil(cb*(255/pow(2,bits)-1));
+                    p.b = (unsigned char)max(0,min(255,(int)(ceil(cb*(255/pow(2,bits)-1)))));
                 } else { 
-                    p.b = floor(cb*(255/pow(2,bits)-1));
+                    p.b = (unsigned char)max(0,min(255,(int)(floor(cb*(255/pow(2,bits)-1)))));
                 }
             }
         }         
