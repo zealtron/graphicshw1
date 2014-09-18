@@ -122,9 +122,9 @@ int Image32::Quantize(const int& bits,Image32& outputImage) const
                 int g = floor(p.g*(pow(2,bits)/256));
                 int b = floor(p.b*(pow(2,bits)/256));
                 //cout << r << " " << g << " " << b << " ";
-                p.r = (unsigned char)r*(256/pow(2,bits));
-                p.g = (unsigned char)g*(256/pow(2,bits));
-                p.b = (unsigned char)b*(256/pow(2,bits));
+                p.r = (unsigned char)r*(255/(pow(2,bits)-1));//*(256/pow(2,bits));
+                p.g = (unsigned char)g*(255/(pow(2,bits)-1));//*(256/pow(2,bits));
+                p.b = (unsigned char)b*(255/(pow(2,bits)-1));//*(256/pow(2,bits));
             }
         }
 	return 1;
@@ -132,6 +132,7 @@ int Image32::Quantize(const int& bits,Image32& outputImage) const
 
 int Image32::RandomDither(const int& bits,Image32& outputImage) const
 {
+        if(bits < 0) return 0;
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
                 Pixel32& p = outputImage.pixel(x,y);
@@ -150,9 +151,15 @@ int Image32::RandomDither(const int& bits,Image32& outputImage) const
                 if(g != 0) g = rand()%g;
                 int b = p.b;
                 if(b != 0) b = rand()%b;*/
-                p.r = floor((p.r + rand()%(int)(128/pow(2,bits)))*(pow(2,bits)/256))*(256/pow(2,bits));
-                p.g = floor((p.g + rand()%(int)(128/pow(2,bits)))*(pow(2,bits)/256))*(256/pow(2,bits));
-                p.b = floor((p.b + rand()%(int)(128/pow(2,bits)))*(pow(2,bits)/256))*(256/pow(2,bits));
+                int noise = rand()%(int)(255/(pow(2,bits)-1));
+                /*if(noise < p.r && noise < p.g && noise < p.b) {
+                    p.r = 255;
+                    p.g = 255;
+                    p.b = 255;
+                } else {*/
+                p.r = (unsigned char)max(0,min(255,(int)(floor((p.r + noise)*(pow(2,bits)/256))*(255/pow(2,bits)-1))));
+                p.g = (unsigned char)max(0,min(255,(int)(floor((p.g + noise)*(pow(2,bits)/256))*(255/pow(2,bits)-1))));
+                p.b = (unsigned char)max(0,min(255,(int)(floor((p.b + noise)*(pow(2,bits)/256))*(255/pow(2,bits)-1))));
             }
         }
 	return 1;
@@ -170,26 +177,26 @@ int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
                 Pixel32& p = outputImage.pixel(x,y);
                 int i = x%2;
                 int j = y%2;
-                float cr = (p.r/255)*(pow(2,bits-1));
-                float cg = (p.g/255)*(pow(2,bits-1));
-                float cb = (p.b/255)*(pow(2,bits-1));
+                float cr = (p.r/255)*(pow(2,bits)-1);
+                float cg = (p.g/255)*(pow(2,bits)-1);
+                float cb = (p.b/255)*(pow(2,bits)-1);
                 float er = cr - floor(cr);
                 if(er > (d[i][j] / 5)) {
-                    p.r = ceil(cr*(255/pow(2,bits-1)));
+                    p.r = ceil(cr*(255/pow(2,bits)-1));
                 } else {
-                    p.r = floor(cr*(255/pow(2,bits-1)));
+                    p.r = floor(cr*(255/pow(2,bits)-1));
                 }
                 float eg = cg - floor(cg);
                 if(eg > (d[i][j] / 5)) {
-                    p.g = ceil(cg*(255/pow(2,bits-1)));
+                    p.g = ceil(cg*(255/pow(2,bits)-1));
                 } else {
-                    p.g = floor(cg*(255/pow(2,bits-1)));
+                    p.g = floor(cg*(255/pow(2,bits)-1));
                 }
                 float eb = cb - floor(eb);
                 if(eb > (d[i][j] / 5)) {
-                    p.b = ceil(cb*(255/pow(2,bits-1)));
+                    p.b = ceil(cb*(255/pow(2,bits)-1));
                 } else { 
-                    p.b = floor(cb*(255/pow(2,bits-1)));
+                    p.b = floor(cb*(255/pow(2,bits)-1));
                 }
             }
         }         
@@ -261,9 +268,9 @@ int Image32::Blur3X3(Image32& outputImage) const
                     g += pd.g * 2/16;
                     b += pd.b * 2/16;
                 }
-                p.r = ceil(r);
-                p.g = ceil(g);
-                p.b = ceil(b);
+                p.r = r;
+                p.g = g;
+                p.b = b;
             }   
         }
 	return 1;
@@ -278,60 +285,60 @@ int Image32::EdgeDetect3X3(Image32& outputImage) const
                 p.g *= 4/16;
                 p.b *= 4/16;*/
                 //cout << p.r << " " << p.g << " " << p.b << " ";
-                float r = p.r * 4/16;
-                float g = p.r * 4/16;
-                float b = p.r * 4/16;
+                int r = p.r * 8;
+                int g = p.r * 8;
+                int b = p.r * 8;
                 if( x - 1 >= 0 && y - 1 >= 0) { //check upper left
                     Pixel32& pul = outputImage.pixel(x-1,y-1);
-                    r += pul.r * 1/16;
-                    g += pul.g * 1/16;
-                    b += pul.b * 1/16;
+                    r += pul.r * -1;
+                    g += pul.g * -1;
+                    b += pul.b * -1;
                 }
                 if( x - 1 >= 0 && y + 1 < outputImage.height()) { //check lower left
                     Pixel32& pll = outputImage.pixel(x-1,y+1);
-                    r += pll.r * 1/16;
-                    g += pll.g * 1/16;
-                    b += pll.b * 1/16;
+                    r += pll.r * -1;
+                    g += pll.g * -1;
+                    b += pll.b * -1;
                 }
                 if( x + 1 < outputImage.width() && y - 1 >= 0) { //check upper right
                     Pixel32& pur = outputImage.pixel(x+1,y-1);
-                    r += pur.r * 1/16;
-                    g += pur.g * 1/16;
-                    b += pur.b * 1/16;
+                    r += pur.r * -1;
+                    g += pur.g * -1;
+                    b += pur.b * -1;
                 }
                 if( x + 1 < outputImage.width() && y + 1 < outputImage.height()) { //check lower right
                     Pixel32& plr = outputImage.pixel(x+1,y+1);
-                    r += plr.r * 1/16;
-                    g += plr.g * 1/16;
-                    b += plr.b * 1/16;
+                    r += plr.r * -1;
+                    g += plr.g * -1;
+                    b += plr.b * -1;
                 }
                 if( x - 1 >= 0) { //check left
                     Pixel32& pl = outputImage.pixel(x-1,y);
-                    r += pl.r * 2/16;
-                    g += pl.g * 2/16;
-                    b += pl.b * 2/16;
+                    r += pl.r * -1;
+                    g += pl.g * -1;
+                    b += pl.b * -1;
                 }
                 if( y - 1 >= 0) { //check up
                     Pixel32& pu = outputImage.pixel(x,y-1);
-                    r += pu.r * 2/16;
-                    g += pu.g * 2/16;
-                    b += pu.b * 2/16;
+                    r += pu.r * -1;
+                    g += pu.g * -1;
+                    b += pu.b * -1;
                 }
                 if( x + 1 < outputImage.width()) { //check right
                     Pixel32& pr = outputImage.pixel(x+1,y);
-                    r += pr.r * 2/16;
-                    g += pr.g * 2/16;
-                    b += pr.b * 2/16;
+                    r += pr.r * -1;
+                    g += pr.g * -1;
+                    b += pr.b * -1;
                 }
                 if( y + 1 < outputImage.height()) { //check down
                     Pixel32& pd = outputImage.pixel(x,y+1);
-                    r += pd.r * 2/16;
-                    g += pd.g * 2/16;
-                    b += pd.b * 2/16;
+                    r += pd.r * -1;
+                    g += pd.g * -1;
+                    b += pd.b * -1;
                 }
-                p.r = ceil(r);
-                p.g = ceil(g);
-                p.b = ceil(b);
+                p.r = (unsigned char)max(0,min(255,r));
+                p.g = (unsigned char)max(0,min(255,g));
+                p.b = (unsigned char)max(0,min(255,b));
             }   
         }
 
