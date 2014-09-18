@@ -28,6 +28,8 @@ int Image32::AddRandomNoise(const float& noise,Image32& outputImage) const
 	if ( noise < 0 || noise > 1) {
             return 0;
         }
+        int seed = time(NULL);
+        srand(seed);
         int count = outputImage.width()*outputImage.height();
         double counter = count * noise;
         while(counter > 0) {
@@ -132,6 +134,8 @@ int Image32::Quantize(const int& bits,Image32& outputImage) const
 
 int Image32::RandomDither(const int& bits,Image32& outputImage) const
 {
+        int seed = time(NULL);
+        srand(seed);
         if(bits < 0) return 0;
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
@@ -167,11 +171,11 @@ int Image32::RandomDither(const int& bits,Image32& outputImage) const
 int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
 {
         if(bits < 0) return 0;
-        int d [2][2];
-        d[0][0] = 1;
-        d[0][1] = 3;
-        d[1][0] = 4;
-        d[1][1] = 2;
+        float d [2][2];
+        d[0][0] = 1.0f;
+        d[0][1] = 3.0f;
+        d[1][0] = 4.0f;
+        d[1][1] = 2.0f;
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
                 Pixel32& p = outputImage.pixel(x,y);
@@ -186,21 +190,21 @@ int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
                 float er = cr - floor(cr);
                 //cout << cr << " " << cg << " " << cb << " ";
                 if(er > (d[i][j] / 5)) {
-                    p.r = (unsigned char)max(0,min(255,(int)(ceil(cr*(255/pow(2,bits)-1)))));
+                    p.r = (unsigned char)max(0,min(255,(int)(ceil(cr)*(255/(pow(2,bits)-1)))));
                 } else {
-                    p.r = (unsigned char)max(0,min(255,(int)(floor(cr*(255/pow(2,bits)-1)))));
+                    p.r = (unsigned char)max(0,min(255,(int)(floor(cr)*(255/(pow(2,bits)-1)))));
                 }
                 float eg = cg - floor(cg);
                 if(eg > (d[i][j] / 5)) {
-                    p.g = (unsigned char)max(0,min(255,(int)(ceil(cg*(255/pow(2,bits)-1)))));
+                    p.g = (unsigned char)max(0,min(255,(int)(ceil(cg)*(255/(pow(2,bits)-1)))));
                 } else {
-                    p.g = (unsigned char)max(0,min(255,(int)(floor(cg*(255/pow(2,bits)-1)))));
+                    p.g = (unsigned char)max(0,min(255,(int)(floor(cg)*(255/(pow(2,bits)-1)))));
                 }
                 float eb = cb - floor(cb);
                 if(eb > (d[i][j] / 5)) {
-                    p.b = (unsigned char)max(0,min(255,(int)(ceil(cb*(255/pow(2,bits)-1)))));
+                    p.b = (unsigned char)max(0,min(255,(int)(ceil(cb)*(255/(pow(2,bits)-1)))));
                 } else { 
-                    p.b = (unsigned char)max(0,min(255,(int)(floor(cb*(255/pow(2,bits)-1)))));
+                    p.b = (unsigned char)max(0,min(255,(int)(floor(cb)*(255/(pow(2,bits)-1)))));
                 }
             }
         }         
