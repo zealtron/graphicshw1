@@ -118,9 +118,9 @@ int Image32::Quantize(const int& bits,Image32& outputImage) const
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
                 Pixel32& p = outputImage.pixel(x,y);
-                int r = floor(p.r/(256/pow(2,bits)));
-                int g = floor(p.g/(256/pow(2,bits)));
-                int b = floor(p.b/(256/pow(2,bits)));
+                int r = floor(p.r*(pow(2,bits)/256));
+                int g = floor(p.g*(pow(2,bits)/256));
+                int b = floor(p.b*(pow(2,bits)/256));
                 //cout << r << " " << g << " " << b << " ";
                 p.r = (unsigned char)r*(256/pow(2,bits));
                 p.g = (unsigned char)g*(256/pow(2,bits));
@@ -210,9 +210,9 @@ int Image32::Blur3X3(Image32& outputImage) const
                 p.g *= 4/16;
                 p.b *= 4/16;*/
                 //cout << p.r << " " << p.g << " " << p.b << " ";
-                int r = p.r * 4/16;
-                int g = p.r * 4/16;
-                int b = p.r * 4/16;
+                float r = p.r * 4/16;
+                float g = p.r * 4/16;
+                float b = p.r * 4/16;
                 if( x - 1 >= 0 && y - 1 >= 0) { //check upper left
                     Pixel32& pul = outputImage.pixel(x-1,y-1);
                     r += pul.r * 1/16;
@@ -245,9 +245,9 @@ int Image32::Blur3X3(Image32& outputImage) const
                 }
                 if( y - 1 >= 0) { //check up
                     Pixel32& pu = outputImage.pixel(x,y-1);
-                    r *= pu.r * 2/16;
-                    g *= pu.g * 2/16;
-                    b *= pu.b * 2/16;
+                    r += pu.r * 2/16;
+                    g += pu.g * 2/16;
+                    b += pu.b * 2/16;
                 }
                 if( x + 1 < outputImage.width()) { //check right
                     Pixel32& pr = outputImage.pixel(x+1,y);
@@ -261,9 +261,9 @@ int Image32::Blur3X3(Image32& outputImage) const
                     g += pd.g * 2/16;
                     b += pd.b * 2/16;
                 }
-                p.r = r;
-                p.g = g;
-                p.b = b;
+                p.r = ceil(r);
+                p.g = ceil(g);
+                p.b = ceil(b);
             }   
         }
 	return 1;
@@ -271,6 +271,70 @@ int Image32::Blur3X3(Image32& outputImage) const
 
 int Image32::EdgeDetect3X3(Image32& outputImage) const
 {
+        for(int x = 0; x < outputImage.width(); x++) {
+            for(int y = 0; y < outputImage.height(); y++) {
+                Pixel32& p = outputImage.pixel(x,y);
+                /*p.r *= 4/16;
+                p.g *= 4/16;
+                p.b *= 4/16;*/
+                //cout << p.r << " " << p.g << " " << p.b << " ";
+                float r = p.r * 4/16;
+                float g = p.r * 4/16;
+                float b = p.r * 4/16;
+                if( x - 1 >= 0 && y - 1 >= 0) { //check upper left
+                    Pixel32& pul = outputImage.pixel(x-1,y-1);
+                    r += pul.r * 1/16;
+                    g += pul.g * 1/16;
+                    b += pul.b * 1/16;
+                }
+                if( x - 1 >= 0 && y + 1 < outputImage.height()) { //check lower left
+                    Pixel32& pll = outputImage.pixel(x-1,y+1);
+                    r += pll.r * 1/16;
+                    g += pll.g * 1/16;
+                    b += pll.b * 1/16;
+                }
+                if( x + 1 < outputImage.width() && y - 1 >= 0) { //check upper right
+                    Pixel32& pur = outputImage.pixel(x+1,y-1);
+                    r += pur.r * 1/16;
+                    g += pur.g * 1/16;
+                    b += pur.b * 1/16;
+                }
+                if( x + 1 < outputImage.width() && y + 1 < outputImage.height()) { //check lower right
+                    Pixel32& plr = outputImage.pixel(x+1,y+1);
+                    r += plr.r * 1/16;
+                    g += plr.g * 1/16;
+                    b += plr.b * 1/16;
+                }
+                if( x - 1 >= 0) { //check left
+                    Pixel32& pl = outputImage.pixel(x-1,y);
+                    r += pl.r * 2/16;
+                    g += pl.g * 2/16;
+                    b += pl.b * 2/16;
+                }
+                if( y - 1 >= 0) { //check up
+                    Pixel32& pu = outputImage.pixel(x,y-1);
+                    r += pu.r * 2/16;
+                    g += pu.g * 2/16;
+                    b += pu.b * 2/16;
+                }
+                if( x + 1 < outputImage.width()) { //check right
+                    Pixel32& pr = outputImage.pixel(x+1,y);
+                    r += pr.r * 2/16;
+                    g += pr.g * 2/16;
+                    b += pr.b * 2/16;
+                }
+                if( y + 1 < outputImage.height()) { //check down
+                    Pixel32& pd = outputImage.pixel(x,y+1);
+                    r += pd.r * 2/16;
+                    g += pd.g * 2/16;
+                    b += pd.b * 2/16;
+                }
+                p.r = ceil(r);
+                p.g = ceil(g);
+                p.b = ceil(b);
+            }   
+        }
+
 	return 0;
 }
 int Image32::ScaleNearest(const float& scaleFactor,Image32& outputImage) const
