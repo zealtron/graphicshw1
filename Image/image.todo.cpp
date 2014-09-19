@@ -510,12 +510,14 @@ int Image32::RotateNearest(const float& angle,Image32& outputImage) const
         //cout << arcsin << " ";
         //int w = (int)(outputImage.width()*sin(-angle));
         //int h = (int)(outputImage.height()*cos(-angle));
-        //cout << w << " " << h << " ";
+        //cout << w << " " << h << " ";i
+        float shift = hyp*(sin(angle*(PI/180))*(angle/90));///(ceil(angle/45));
+        float factor = hyp*(cos(angle*(PI/180))*(angle/90));///(ceil(angle/45));
         Pixel32 img[w][h];
         for(int x = 0; x < w; x++) {
             for(int y = 0; y < h; y++) {
-                float u = x*cos(-(angle*(PI/180))) - y*sin(-(angle*(PI/180)));
-                float v = x*sin(-(angle*(PI/180))) + y*cos(-(angle*(PI/180)));
+                float u = x*cos(-(angle*(PI/180))) - y*sin(-(angle*(PI/180))) - factor;
+                float v = x*sin(-(angle*(PI/180))) + y*cos(-(angle*(PI/180))) + shift;
                 img[x][y] = NearestSample(u,v);
             }
         }     
