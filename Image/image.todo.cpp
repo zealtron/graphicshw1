@@ -205,7 +205,7 @@ int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
                     p.b = (unsigned char)max(0,min(255,(int)(ceil(cb)*(255/(pow(2,bits)-1)))));
                 } else { 
                     p.b = (unsigned char)max(0,min(255,(int)(floor(cb)*(255/(pow(2,bits)-1)))));
-                }
+               }
             }
         }         
 	return 1;
@@ -214,11 +214,21 @@ int Image32::OrderedDither2X2(const int& bits,Image32& outputImage) const
 int Image32::FloydSteinbergDither(const int& bits,Image32& outputImage) const
 {
         if(bits < 0) return 0;
-        Pixel32 fs[outputImage.width()][outputImage.height];
-        fs[0][0] = outputImage.pixel(0,0);
+        /*float fsr[(int)outputImage.width()][(int)outputImage.height]; //red error
+        fsr[0][0] = 0f;
+        float fsg[(int)outputImage.width()][(int)outputImage.height]; //green error
+        fsg[0][0] = 0f;
+        float fsb[(int)outputImage.width()][(int)outputImage.height]; // blue error
+        fsb[0][0] = 0f;*/
+        /*Pixel32 fs[outputImage.width()][outputImage.height()];
+        for(int a = 0; a < outputImage.width(); a++) { //initializing buffer with image
+            for(int b = 0; b < outputImage.height(); b++) {
+                fs[a][b] = outputImage.pixel(a,b);
+            }
+        }*/
         for(int x = 0; x < outputImage.width(); x++) {
             for(int y = 0; y < outputImage.height(); y++) {
-                Pixel32 p = outputImage.pixel(x,y);
+                Pixel32& p = outputImage.pixel(x,y);
                 float r = floor(p.r*(pow(2,bits)/256))*(255/(pow(2,bits)-1));
                 float er = p.r - r;
                 float g = floor(p.g*(pow(2,bits)/256))*(255/(pow(2,bits)-1));
@@ -226,32 +236,52 @@ int Image32::FloydSteinbergDither(const int& bits,Image32& outputImage) const
                 float b = floor(p.b*(pow(2,bits)/256))*(255/(pow(2,bits)-1));
                 float eb = p.b - b;
                 if(y + 1 < outputImage.height()) { // checks right; alpha 7/16
-                    Pixel32 pr = outputImage.pixel(x,y+1);
+                    Pixel32& pr = outputImage.pixel(x,y+1);
                     pr.r = (unsigned char)max(0,min(255,(int)(pr.r + ((7*er)/16))));
-                    pr.g = (unsigned char)max(0,min(255,(int)(pr.g + ((7*er)/16))));
-                    pr.b = (unsigned char)max(0,min(255,(int)(pr.b + ((7*er)/16))));
+                    pr.g = (unsigned char)max(0,min(255,(int)(pr.g + ((7*eg)/16))));
+                    pr.b = (unsigned char)max(0,min(255,(int)(pr.b + ((7*eb)/16))));
+                    /*fsr[x][y+1] += (7*er)/16;
+                    fsg[x][y+1] += (7*eg)/16;
+                    fsb[x][y+1] += (7*eb)/16;
+                    fs[x][y+1].r += (7*er)/16;
+                    fs[x][y+1].g += (7*eg)/16;
+                    fs[x][y+1].b += (7*eb)/16;*/
                 }
                 if(x + 1 < outputImage.width() && y - 1 >= 0) { // check lower left; beta 3/16
-                    Pixel32 pll = outputImage.pixel(x+1,y-1);
+                    Pixel32& pll = outputImage.pixel(x+1,y-1);
                     pll.r = (unsigned char)max(0,min(255,(int)(pll.r + ((3*er)/16))));
-                    pll.g = (unsigned char)max(0,min(255,(int)(pll.g + ((3*er)/16))));
-                    pll.b = (unsigned char)max(0,min(255,(int)(pll.b + ((3*er)/16))));
+                    pll.g = (unsigned char)max(0,min(255,(int)(pll.g + ((3*eg)/16))));
+                    pll.b = (unsigned char)max(0,min(255,(int)(pll.b + ((3*eb)/16))));
+                    /*fs[x+1][y-1].r += (3*er)/16;
+                    fs[x+1][y-1].g += (3*eg)/16;
+                    fs[x+1][y-1].b += (3*eb)/16;*/  
                 }
                 if(x+1 < outputImage.width()) { //checks down; gamma 5/16
-                    Pixel32 pd = outputImage.pixel(x+1,y);
+                    Pixel32& pd = outputImage.pixel(x+1,y);
                     pd.r = (unsigned char)max(0,min(255,(int)(pd.r + ((5*er)/16))));
-                    pd.g = (unsigned char)max(0,min(255,(int)(pd.g + ((5*er)/16))));
-                    pd.b = (unsigned char)max(0,min(255,(int)(pd.b + ((5*er)/16))));
+                    pd.g = (unsigned char)max(0,min(255,(int)(pd.g + ((5*eg)/16))));
+                    pd.b = (unsigned char)max(0,min(255,(int)(pd.b + ((5*eb)/16))));
+                    /*fs[x+1][y].r += (5*er)/16;
+                    fs[x+1][y].g += (5*eg)/16;
+                    fs[x+1][y].b += (5*eb)/16;*/
                 }
                 if(x+1 < outputImage.width() && y+1 < outputImage.height()) { //checks lower right; delta 1/16
-                    Pixel32 plr = outputImage.pixel(x+1,y+1);
+                    Pixel32& plr = outputImage.pixel(x+1,y+1);
                     plr.r = (unsigned char)max(0,min(255,(int)(plr.r + (er/16))));
-                    plr.g = (unsigned char)max(0,min(255,(int)(plr.g + (er/16))));
-                    plr.b = (unsigned char)max(0,min(255,(int)(plr.b + (er/16))));
+                    plr.g = (unsigned char)max(0,min(255,(int)(plr.g + (eg/16))));
+                    plr.b = (unsigned char)max(0,min(255,(int)(plr.b + (eb/16))));
+                    /*fs[x+1][y+1].r += (1*er)/16;
+                    fs[x+1][y+1].g += (1*eg)/16;
+                    fs[x+1][y+1].b += (1*eb)/16;*/
                 }
             }
         }
- 
+       /* for(int w = 0; w < outputImage.width(); w++) { //copying buffer....
+            for(int h = 0; h < outputImage.height(); h++) {
+                Pixel32& pix = outputImage.pixel(w,h);
+                pix = fs[w][h];
+            }
+        }*/ 
 	return 1;
 }
 
@@ -420,12 +450,50 @@ int Image32::EdgeDetect3X3(Image32& outputImage) const
 }
 int Image32::ScaleNearest(const float& scaleFactor,Image32& outputImage) const
 {
-	return 0;
+        int w = (int)(outputImage.width()*scaleFactor);
+        int h = (int)(outputImage.height()*scaleFactor);
+        //Image32 img = outputImage;
+        //img.setSize(w,h);
+        Pixel32 img[w][h];
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                float u = x / scaleFactor;
+                float v = y / scaleFactor;
+                Pixel32 p = outputImage.NearestSample(u,v);
+                img[x][y] = p;
+            }
+        }
+        outputImage.setSize(w,h);
+        for(int a = 0; a < w; a++) { //copying
+            for(int b = 0; b < h; b++) {
+                outputImage.pixel(a,b) = img[a][b];
+            }
+        }   
+	return 1;
 }
 
 int Image32::ScaleBilinear(const float& scaleFactor,Image32& outputImage) const
 {
-	return 0;
+        int w = (int)(outputImage.width()*scaleFactor);
+        int h = (int)(outputImage.height()*scaleFactor);
+        //Image32 img = outputImage;
+        //img.setSize(w,h);
+        Pixel32 img[w][h];
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                float u = x / scaleFactor;
+                float v = y / scaleFactor;
+                Pixel32 p = outputImage.BilinearSample(u,v);
+                img[x][y] = p;
+            }
+        }
+        outputImage.setSize(w,h);
+        for(int a = 0; a < w; a++) { //copying
+            for(int b = 0; b < h; b++) {
+                outputImage.pixel(a,b) = img[a][b];
+            }
+        } 
+	return 1;
 }
 
 int Image32::ScaleGaussian(const float& scaleFactor,Image32& outputImage) const
@@ -504,12 +572,59 @@ int Image32::Crop(const int& x1,const int& y1,const int& x2,const int& y2,Image3
 
 Pixel32 Image32::NearestSample(const float& x,const float& y) const
 {
-	return Pixel32();
+        int u = floor(x + 0.5);
+        int v = floor(y + 0.5);
+        Pixel32 p = this->pixel(u,v);
+	return p;
 }
 
 Pixel32 Image32::BilinearSample(const float& x,const float& y) const
 {
-	return Pixel32();
+        int x1 = floor(x);
+        int x2 = x1 + 1;
+        int y1 = floor(y);
+        int y2 = y1 + 1;
+        float dx = x - x1;
+        float dy = y - y1;
+        Pixel32 s1 = this->pixel(x1,y1); //src 1
+        s1.r = (unsigned char)max(0,min(255,(int)(s1.r*(1-dx))));
+        s1.g = (unsigned char)max(0,min(255,(int)(s1.g*(1-dx))));
+        s1.b = (unsigned char)max(0,min(255,(int)(s1.b*(1-dx))));
+        Pixel32 s2; //src 2
+        if(x2 < this->width()) {
+            s2 = this->pixel(x2,y1);
+            s2.r = (unsigned char)max(0,min(255,(int)(s2.r*dx)));
+            s2.g = (unsigned char)max(0,min(255,(int)(s2.g*dx)));
+            s2.b = (unsigned char)max(0,min(255,(int)(s2.b*dx)));
+        }
+        Pixel32 s3; //src 3i
+        if(y2 < this->height()) {
+            s3 = this->pixel(x1,y2);
+            s3.r = (unsigned char)max(0,min(255,(int)(s3.r*(1-dx))));
+            s3.g = (unsigned char)max(0,min(255,(int)(s3.g*(1-dx))));
+            s3.b = (unsigned char)max(0,min(255,(int)(s3.b*(1-dx))));  
+        }
+        Pixel32 s4; //src4
+        if(x2 < this->width() && y2 < this->height()) {
+            s4 = this->pixel(x2,y2);
+            s4.r = (unsigned char)max(0,min(255,(int)(s4.r*dx)));
+            s4.g = (unsigned char)max(0,min(255,(int)(s4.g*dx)));
+            s4.b = (unsigned char)max(0,min(255,(int)(s4.b*dx))); 
+        }
+        Pixel32* a = new Pixel32();
+        Pixel32* b = new Pixel32();
+        
+        a->r = (unsigned char)max(0,min(255,s1.r + s2.r));
+        a->g = (unsigned char)max(0,min(255,s1.g + s2.g));
+        a->b = (unsigned char)max(0,min(255,s1.b + s2.b));
+        b->r = (unsigned char)max(0,min(255,s3.r + s4.r));
+        b->g = (unsigned char)max(0,min(255,s3.g + s4.g));
+        b->b = (unsigned char)max(0,min(255,s3.b + s4.b)); 
+        Pixel32 dst;
+        dst.r = (unsigned char)max(0,min(255,(int)(a->r*(1-dy) + b->r*dy)));
+        dst.g = (unsigned char)max(0,min(255,(int)(a->g*(1-dy) + b->g*dy)));
+        dst.b = (unsigned char)max(0,min(255,(int)(a->b*(1-dy) + b->b*dy))); 
+	return dst;
 }
 
 Pixel32 Image32::GaussianSample(const float& x,const float& y,const float& variance,const float& radius) const
