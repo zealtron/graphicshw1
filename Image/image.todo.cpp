@@ -503,7 +503,30 @@ int Image32::ScaleGaussian(const float& scaleFactor,Image32& outputImage) const
 
 int Image32::RotateNearest(const float& angle,Image32& outputImage) const
 {
-	return 0;
+        double hyp = sqrt(pow(outputImage.width(),2) + pow(outputImage.height(),2));
+        //double arcsin = asin(outputImage.height()/hyp) * (180/ PI);
+        int w = ceil(hyp);
+        int h = ceil(hyp);
+        //cout << arcsin << " ";
+        //int w = (int)(outputImage.width()*sin(-angle));
+        //int h = (int)(outputImage.height()*cos(-angle));
+        //cout << w << " " << h << " ";
+        Pixel32 img[w][h];
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                float u = x*cos(-(angle*(PI/180))) - y*sin(-(angle*(PI/180)));
+                float v = x*sin(-(angle*(PI/180))) + y*cos(-(angle*(PI/180)));
+                img[x][y] = NearestSample(u,v);
+            }
+        }     
+        outputImage.setSize(w,h);
+        for(int i = 0; i < w; i++) {
+            for(int j = 0; j < h; j++) {
+                Pixel32& p = outputImage.pixel(i,j);
+                p = img[i][j];
+            }
+        }
+	return 1;
 }
 
 int Image32::RotateBilinear(const float& angle,Image32& outputImage) const
@@ -572,10 +595,15 @@ int Image32::Crop(const int& x1,const int& y1,const int& x2,const int& y2,Image3
 
 Pixel32 Image32::NearestSample(const float& x,const float& y) const
 {
-        int u = floor(x + 0.5);
-        int v = floor(y + 0.5);
-        Pixel32 p = this->pixel(u,v);
-	return p;
+        //cout << x << " " << y << " ";
+        if( x >= 0 && x < this->width()-0.5 && y >= 0 && y < this->height()-0.5) {
+            int u = floor(x + 0.5);
+            int v = floor(y + 0.5);
+            Pixel32 p = this->pixel(u,v);
+	    return p;
+        } else {
+            return Pixel32();
+        }
 }
 
 Pixel32 Image32::BilinearSample(const float& x,const float& y) const
@@ -586,26 +614,29 @@ Pixel32 Image32::BilinearSample(const float& x,const float& y) const
         int y2 = y1 + 1;
         float dx = x - x1;
         float dy = y - y1;
-        Pixel32 s1 = this->pixel(x1,y1); //src 1
-        s1.r = (unsigned char)max(0,min(255,(int)(s1.r*(1-dx))));
-        s1.g = (unsigned char)max(0,min(255,(int)(s1.g*(1-dx))));
-        s1.b = (unsigned char)max(0,min(255,(int)(s1.b*(1-dx))));
+        Pixel32 s1;// = this->pixel(x1,y1); //src 1
+        if(x1 >= 0 && x2 >= 0) {   
+            s1 = this->pixel(x1,y1);
+            s1.r = (unsigned char)max(0,min(255,(int)(s1.r*(1-dx))));
+            s1.g = (unsigned char)max(0,min(255,(int)(s1.g*(1-dx))));
+            s1.b = (unsigned char)max(0,min(255,(int)(s1.b*(1-dx))));
+        }
         Pixel32 s2; //src 2
-        if(x2 < this->width()) {
+        if(x2 < this->width() && x2 >= 0) {
             s2 = this->pixel(x2,y1);
             s2.r = (unsigned char)max(0,min(255,(int)(s2.r*dx)));
             s2.g = (unsigned char)max(0,min(255,(int)(s2.g*dx)));
             s2.b = (unsigned char)max(0,min(255,(int)(s2.b*dx)));
         }
         Pixel32 s3; //src 3i
-        if(y2 < this->height()) {
+        if(y2 < this->height() && y2 >= 0) {
             s3 = this->pixel(x1,y2);
             s3.r = (unsigned char)max(0,min(255,(int)(s3.r*(1-dx))));
             s3.g = (unsigned char)max(0,min(255,(int)(s3.g*(1-dx))));
             s3.b = (unsigned char)max(0,min(255,(int)(s3.b*(1-dx))));  
         }
         Pixel32 s4; //src4
-        if(x2 < this->width() && y2 < this->height()) {
+        if(x2 < this->width() && y2 < this->height() && x2 >= 0 && y2 >= 0) {
             s4 = this->pixel(x2,y2);
             s4.r = (unsigned char)max(0,min(255,(int)(s4.r*dx)));
             s4.g = (unsigned char)max(0,min(255,(int)(s4.g*dx)));
