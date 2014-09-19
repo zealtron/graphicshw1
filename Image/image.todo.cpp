@@ -533,7 +533,32 @@ int Image32::RotateNearest(const float& angle,Image32& outputImage) const
 
 int Image32::RotateBilinear(const float& angle,Image32& outputImage) const
 {
-	return 0;
+        double hyp = sqrt(pow(outputImage.width(),2) + pow(outputImage.height(),2));
+        //double arcsin = asin(outputImage.height()/hyp) * (180/ PI);
+        int w = ceil(hyp);
+        int h = ceil(hyp);
+        //cout << arcsin << " ";
+        //int w = (int)(outputImage.width()*sin(-angle));
+        //int h = (int)(outputImage.height()*cos(-angle));
+        //cout << w << " " << h << " ";i
+        float shift = hyp*(sin(angle*(PI/180))*(angle/90));///(ceil(angle/45));
+        float factor = hyp*(cos(angle*(PI/180))*(angle/90));///(ceil(angle/45));
+        Pixel32 img[w][h];
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                float u = x*cos(-(angle*(PI/180))) - y*sin(-(angle*(PI/180))) - factor;
+                float v = x*sin(-(angle*(PI/180))) + y*cos(-(angle*(PI/180))) + shift;
+                img[x][y] = NearestSample(u,v);
+            }
+        }     
+        outputImage.setSize(w,h);
+        for(int i = 0; i < w; i++) {
+            for(int j = 0; j < h; j++) {
+                Pixel32& p = outputImage.pixel(i,j);
+                p = img[i][j];
+            }
+        }
+	return 1;
 }
 	
 int Image32::RotateGaussian(const float& angle,Image32& outputImage) const
