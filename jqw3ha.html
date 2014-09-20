@@ -1,0 +1,99 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Assignment1</title>
+	<meta name="Assignment 1" content="Image Processing">
+	<meta name="James Wang" content="SitePoint">
+
+	<link rel="stylesheet" href="css/styles.css?v=1.0">
+
+</head>
+
+<body>
+	<header>
+		<p>James Wang</p>
+		<p>jqw3ha</p>
+		<p>Compiler: g++/gnu | Environment: Linux (Ubuntu 12.04 Precise) | Platform: 64bit</p>
+		<p>Late days used: 1</p>
+	</header>
+	<div id="assignment">
+		<ul>
+			<li>
+				<p>AddRandomNoise 0.5</p>
+				<img src="jqw3ha_HTML/yoda.bmp" alt="src" width="200"><img src="jqw3ha_HTML/yodanoisify.bmp" alt="dest 0.5" width="200">
+			</li>
+			<li>
+				<p>Brighten 2</p>
+				<img src="jqw3ha_HTML/yoda.bmp" alt="src" width="200"><img src="jqw3ha_HTML/yodabrighten.bmp" alt="dest 2" width="200">
+			</li>
+			<li>
+				<p>Luminance</p>
+				<img src="jqw3ha_HTML/yoda.bmp" alt="src" width="200"><img src="jqw3ha_HTML/yodagray.bmp" alt="dest" width="200">
+			</li>
+			<li>
+				<p>Contrast 2</p>
+				<img src="jqw3ha_HTML/shrek.bmp" alt="src" width="400"><img src="jqw3ha_HTML/shrekcontrast.bmp" alt="dest 2" width="400">
+			</li>
+			<li>
+				<p>Saturate 2</p>
+				<img src="jqw3ha_HTML/shrek.bmp" alt="src" width="400"><img src="jqw3ha_HTML/shreksaturate.bmp" alt="dest 2" width="400">
+			</li>
+			<li>
+				<p>Crop (100,100) (500,500)</p>
+				<img src="jqw3ha_HTML/yoda.bmp" alt="src" width="200"><img src="jqw3ha_HTML/yodacrop100to500.bmp" alt="dest 400px" width="200">
+			</li>
+			<li>
+				<p>Quantize 4</p>
+				<img src="jqw3ha_HTML/ramp.bmp" alt="src" width="200"><img src="jqw3ha_HTML/rampquantize.bmp" alt="dest 4" width="200">
+			</li>
+			<li>
+				<p>RandomDither 4</p>
+				<img src="jqw3ha_HTML/ramp.bmp" alt="src" width="200"><img src="jqw3ha_HTML/ramprdither.bmp" alt="dest 4" width="200">
+			</li>
+			<li>
+				<p>Ordered Dither 2x2 4</p>
+				<img src="jqw3ha_HTML/ramp.bmp" alt="src" width="200"><img src="jqw3ha_HTML/rampodither.bmp" alt="dest 4" width="200">
+			</li>
+			<li>
+				<p>FloydSteinbergDither: Not Implemented</p>
+			</li>
+			<li>
+				<p>Blur3x3 //Blurs image, but makes it darker</p>
+				<img src="jqw3ha_HTML/sully.bmp" alt="src"><img src="jqw3ha_HTML/sullyblur.bmp" alt="dest">
+			</li>
+			<li>
+				<p>Edges3x3</p>
+				<img src="jqw3ha_HTML/sully.bmp" alt="src"><img src="jqw3ha_HTML/sullyedgy.bmp" alt="dest">
+			</li>
+			<li><p>NearestSample: Implemented, see below</p></li>
+			<li><p>BilinearSample: Implemented, see below</p></li>
+			<li><p>GaussianSample: Not Implemented</p></li>
+			<li>
+				<p>ScaleNearest 1.3</p>
+				<img src="jqw3ha_HTML/stripe.bmp" alt="src"><img src="jqw3ha_HTML/stripesn.bmp" alt="dest 1.3">
+			</li>
+			<li>
+				<p>ScaleBilinear 1.3</p>
+				<img src="jqw3ha_HTML/stripe.bmp" alt="src"><img src="jqw3ha_HTML/stripesb.bmp" alt="dest 1.3">
+			</li>
+			<li>
+				<p>ScaleGaussian: Not Implemented</p>
+			</li>
+			<li>
+				<p>SetComposite, SetAlpha //Created a composite image of myself and a famous person!</p>
+				<img src="jqw3ha_HTML/kji.jpg" alt="src" width="400"><img src="jqw3ha_HTML/matte.jpg" alt="matte" width="400"><img src="jqw3ha_HTML/overlay.jpg" alt="overlay" width="400"><img src="jqw3ha_HTML/famous.jpg" alt="dest" width="400">
+			</li>
+  			<li><p>FunFilter: Semi-Implemented. Swirl, doesn't quite work, but it swirls!</p></li>
+  			<li><p>Beier-Neely Morphing: Not Implemented</p></li>
+  			<li>
+  				<p>Art Submission: Steps of each frame: saturate [-2,2] with 0.5 intervals</p>
+  				<img src="jqw3ha_HTML/jqw3ha.art.submission1.gif" alt="Our lord and savior">
+  			</li>
+		</ul>
+
+	</div>
+</body>
+</html>
