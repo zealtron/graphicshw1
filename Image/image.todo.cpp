@@ -588,7 +588,24 @@ int Image32::Warp(const OrientedLineSegmentPairs& olsp,Image32& outputImage) con
 
 int Image32::FunFilter(Image32& outputImage) const
 {
-	return 0;
+        Pixel32 img[outputImage.width()][outputImage.height()];
+        for(int x = 0; x < outputImage.width(); x++) {
+            for(int y = 0; y < outputImage.height(); y++) {
+                double dist = sqrt(x*x + y*y);
+                double angle = 45 + 1/(dist + (4.0f/PI)); 
+                float u = dist*cos(angle*(PI/180));
+                float v = dist*sin(angle*(PI/180));
+                Pixel32 p = outputImage.NearestSample(u,v);
+                img[x][y] = p;
+            }
+        }
+        outputImage.setSize(w,h);
+        for(int a = 0; a < w; a++) { //copying
+            for(int b = 0; b < h; b++) {
+                outputImage.pixel(a,b) = img[a][b];
+            }
+        }
+	return 1;
 }
 
 int Image32::Crop(const int& x1,const int& y1,const int& x2,const int& y2,Image32& outputImage) const
