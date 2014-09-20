@@ -569,12 +569,32 @@ int Image32::RotateGaussian(const float& angle,Image32& outputImage) const
 
 int Image32::SetAlpha(const Image32& matte)
 {
-	return 0;
+        for(int x = 0; x < matte.width(); x++) {
+            for(int y = 0; y < matte.height(); y++) {
+                Pixel32& p = this->pixel(x,y);
+                Pixel32 m = matte.pixel(x,y);
+                float alpha = m.r*0.3 + m.g*0.59 + m.b*0.11;
+                p.a = (unsigned char)max(0,min(255,(int)alpha));
+            }
+        }
+	return 1;
 }
 
 int Image32::Composite(const Image32& overlay,Image32& outputImage) const
 {
-	return 0;
+        for(int x = 0; x < outputImage.width(); x++) {
+            for(int y = 0; y < outputImage.height(); y++) {
+                Pixel32& p = outputImage.pixel(x,y);
+                Pixel32 o = overlay.pixel(x,y);
+                int alpha = o.a;
+                if(alpha > 128) {
+                    p.r = o.r;
+                    p.g = o.g;
+                    p.b = o.b;
+                }
+            }
+        }
+	return 1;
 }
 
 int Image32::CrossDissolve(const Image32& source,const Image32& destination,const float& blendWeight,Image32& ouputImage)
